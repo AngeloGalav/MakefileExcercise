@@ -1,46 +1,45 @@
 CC = g++
 
-ifeq ($(OS),Windows_NT)
-	# Windows build options here
+#SPACE RECOGNITION
+null :=
+space := ${null} ${null}
+${space} := ${space}# ${ } is a space. Neat huh?
+#END OFSPACE RECOGNITION
+
+EXEC_NAME = $(notdir $(subst ${ },_,$(shell pwd)) )
+RMV = rm -f *.o
+
+ifneq ($(wildcard /usr/include/SFML),)
+	SFML_DIR_PREFIX = /usr
 else
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-		ifneq ($(wildcard /usr/include/SFML),)
-			SFML_DIR_PREFIX = /usr
-		else
-			SFML_DIR_PREFIX = /usr/local
-		endif
-        CCFLAGS += -D LINUX
-    endif
-    # ifeq ($(UNAME_S),Darwin)
-    #    CCFLAGS += -D OSX
-    # endif
-    # UNAME_P := $(shell uname -p)
-    # ifeq ($(UNAME_P),x86_64)
-    #    CCFLAGS += -D AMD64
-    # endif
-    # ifneq ($(filter %86,$(UNAME_P)),)
-    #    CCFLAGS += -D IA32
-    # endif
-    # ifneq ($(filter arm%,$(UNAME_P)),)
-    #    CCFLAGS += -D ARM
-    # endif
+		SFML_DIR_PREFIX = /usr/local
+	endif
+CCFLAGS += -D LINUX
+
+ifeq ($(OS),Windows_NT)
+	#WINDOWS BUILD OPTIONS
+	ifneq ($(wildcard C:/include/SFML),)
+		SFML_DIR_PREFIX = /usr
+	else
+		SFML_DIR_PREFIX = /usr/local
+	endif
+	RMV = cmd //C del *.o
+	EXEC_NAME = $(notdir $(subst ${ },_,$(shell cd)) ).exe
 endif
 
 SFML_INCLUDE_DIR = $(SFML_DIR_PREFIX)/include/SFML
-
 SFML_FLAGS = -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system
-CFLAGS = $(SFML_FLAGS) -I$(SFML_INCLUDE_DIR) -Wall -O0 
+CFLAGS = $(SFML_FLAGS) -I$(SFML_INCLUDE_DIR) -Wall -O0
 
 .PHONY : all clean # Target that arent a file
 
-all : SFML_Test clean
+all : $(EXEC_NAME) clean
 
 SRC = $(wildcard *.cpp)
 OBJ = $(SRC:.cpp=.o) # Considera i file .cpp ma che che hanno come suffisso .o
 
-SFML_Test : $(OBJ)
-	@echo "** Building main program"
+$(EXEC_NAME) : $(OBJ)
+	@echo "** Building main executable, aka $(EXEC_NAME) ..."
 	$(CC) -o $@ $(OBJ) $(CFLAGS)
 
 %.o: %.cpp
@@ -49,4 +48,4 @@ SFML_Test : $(OBJ)
 
 clean :
 	@echo "** Removing object files..."
-	rm -f *.o
+	$(RMV)
