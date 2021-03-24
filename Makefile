@@ -1,11 +1,5 @@
 CC = g++
 
-ifneq ($(wildcard /usr/include/SFML),)
-	SFML_DIR_PREFIX = /usr
-else
-	SFML_DIR_PREFIX = /usr/local
-endif
-
 ifeq ($(OS),Windows_NT)
 	# Windows build options here
 else
@@ -43,14 +37,14 @@ CFLAGS = $(SFML_FLAGS) -I$(SFML_INCLUDE_DIR) -Wall -O0
 all : SFML_Test clean
 
 SRC = $(wildcard *.cpp)
-OBJ = $(SRC:.cpp=.o) # Considera i file aventi .cpp
+OBJ = $(SRC:.cpp=.o) # Considera i file .cpp ma che che hanno come suffisso .o
 
 SFML_Test : $(OBJ)
-	@echo "** Building the game"
-	$(CC) -o $@ *.o $(CFLAGS)
+	@echo "** Building main program"
+	$(CC) -o $@ $(OBJ) $(CFLAGS)
 
 %.o: %.cpp
-	@echo "** Building..."
+	@echo "** Building obj files..."
 	$(CC) -c $< -o $@
 
 clean :
